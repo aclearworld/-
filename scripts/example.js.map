@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "example.js",
+  "sourceRoot": "",
+  "sources": [
+    "example.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;;AAAA"
+}

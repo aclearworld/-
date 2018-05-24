@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+npm install
+export HUBOT_SLACK_TOKEN=xoxb-346888072146-PhvkO0G91dVithodTj1tbsWN
+export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
+
+exec node_modules/.bin/hubot --name "lcabot" "$@"
