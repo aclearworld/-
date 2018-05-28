@@ -1,23 +1,26 @@
-const cronJob = require('cron').CronJob;
-const superagent = require('superagent');
-const moment = require('moment');
+const CronJob = require('cron').CronJob;
+const SuperAgent = require('superagent');
+const Moment = require('moment');
 const _ = require('underscore')
+const Config = require('../weatherBot.config')
 
-const api_key = process.env.OPENWEATHERMAPAPIKEY
+const APIKEY = process.env.OPENWEATHERMAPAPIKEY
 
 module.exports = robot => {
   //毎日１７時に明日の天気をつぶやく
-  const EveryDayWeatherInfoJob = new cronJob('1 10 22 * * *', () => {
-    let tomorrowWeatherInfo
+  const EveryDayWeatherInfoJob = new CronJob('1 00 17 * * *', () => {
+    const  callback = apiRes => {
+      const greeting = '１７時になりました、今日も一日お疲れ様でした！　早く家に帰ってゆっくり休んで下さい ついでに明日の天気をお知らせします♪'
+      const infoMsg = CreateTomorrowWeatherInfo(apiRes)
+      robot.send({
+        room: 'random'
+      }, greeting + '\n'+ infoMsg)
+    }
+
     try {
-      tomorrowWeatherInfo = CreateTomorrowWeatherInfo(GetWeather())
+      GetWeather(callback)
     }
-    catch (e) {
-      robot.send(e.toString())
-    }
-    robot.send({
-      room: 'random'
-    }, tomorrowWeatherInfo);
+    catch (e) {}
   })
   EveryDayWeatherInfoJob.start();
 
@@ -45,7 +48,9 @@ module.exports = robot => {
  * @exception {Error}
  */
 function GetWeather(callback) {
-  superagent.get(`http://api.openweathermap.org/data/2.5/forecast?q=Fukuoka-shi&appid=${api_key}&lang=ja`).end((err, data) => {
+  const place = Config.Place || 'Fukuoka-shi'
+  if (!APIKEY) throw new Error('openweathermap.orgのAPIKEYが環境変数 OPENWEATHERMAPAPIKEY に登録されていません')
+  SuperAgent.get(`http://api.openweathermap.org/data/2.5/forecast?q${place}=&appid=${APIKEY}&lang=ja`).end((err, data) => {
     if (err) throw  new Error('天気情報の取得に失敗しました　原因は次の中にあるかもしれません ' + err.toString())
     if (!data.body) throw  new Error('天気情報の取得に失敗しました')
 
@@ -65,13 +70,13 @@ function GetWeather(callback) {
  */
 function CreateTomorrowWeatherInfo(apiResponse) {
   if (!apiResponse.list) return ''
-  var tommorwWeatherList, tomorrow;
-  tomorrow = moment().add(1, "Day").format("YYYY-MM-DD");
-  tommorwWeatherList = apiResponse.list.filter(thank => {
+  let tomorrowWeatherList, tomorrow;
+  tomorrow = Moment().add(1, "Day").format("YYYY-MM-DD");
+  tomorrowWeatherList = apiResponse.list.filter(thank => {
     return thank.dt_txt.includes(tomorrow);
   });
 
-  const mainList = tommorwWeatherList.map(thank => thank.weather[0].main)
+  const mainList = tomorrowWeatherList.map(thank => thank.weather[0].main)
   const mainCount = _.countBy(mainList, main => main)
   let most = {
     weather: '',
@@ -79,17 +84,16 @@ function CreateTomorrowWeatherInfo(apiResponse) {
   }
   Object.keys(mainCount).forEach(key => {
     if (mainCount[key] >= most.count) {
-      most.weather = most.weather = key
+      most.weather = key
       most.count = mainCount[key]
     }
   })
   const emoji = emojis[most.weather]
-
   let infoMsg = "明日の天気は..."
   if (emoji) infoMsg += emoji
   infoMsg += '\n'
-  tommorwWeatherList.forEach((thank) => {
-    let hour = moment(thank.dt_txt, 'YYYY-MM-DD hh:mm:ss').hour()
+  tomorrowWeatherList.forEach((thank) => {
+    let hour = Moment(thank.dt_txt, 'YYYY-MM-DD hh:mm:ss').hour()
     infoMsg += " " + hour + "時 : " + thank.weather[0].description + " \n";
   });
 
