@@ -50,7 +50,7 @@ module.exports = robot => {
 function GetWeather(callback) {
   const place = Config.Place || 'Fukuoka-shi'
   if (!APIKEY) throw new Error('openweathermap.orgのAPIKEYが環境変数 OPENWEATHERMAPAPIKEY に登録されていません')
-  SuperAgent.get(`http://api.openweathermap.org/data/2.5/forecast?q${place}=&appid=${APIKEY}&lang=ja`).end((err, data) => {
+  SuperAgent.get(`http://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${APIKEY}&lang=ja`).end((err, data) => {
     if (err) throw  new Error('天気情報の取得に失敗しました　原因は次の中にあるかもしれません ' + err.toString())
     if (!data.body) throw  new Error('天気情報の取得に失敗しました')
 
