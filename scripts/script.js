@@ -7,20 +7,25 @@ const Config = require('../weatherBot.config')
 const APIKEY = process.env.OPENWEATHERMAPAPIKEY
 
 module.exports = robot => {
+  //とりあえず止まらない
+  robot.respond(/.*[止まる|とまる]+.*/, res => {
+    res.send("止まるんじゃねえそ....")
+  })
   //毎日１７時に明日の天気をつぶやく
   const EveryDayWeatherInfoJob = new CronJob('1 00 17 * * *', () => {
-    const  callback = apiRes => {
+    const callback = apiRes => {
       const greeting = '１７時になりました、今日も一日お疲れ様でした！　早く家に帰ってゆっくり休んで下さい ついでに明日の天気をお知らせします♪'
       const infoMsg = CreateTomorrowWeatherInfo(apiRes)
       robot.send({
         room: 'random'
-      }, greeting + '\n'+ infoMsg)
+      }, greeting + '\n' + infoMsg)
     }
 
     try {
       GetWeather(callback)
     }
-    catch (e) {}
+    catch (e) {
+    }
   })
   EveryDayWeatherInfoJob.start();
 
