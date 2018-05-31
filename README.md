@@ -15,7 +15,6 @@
 
 
 ```
-    % bin/hubot
     %  ./bin/hubot --adapter slack
 ```
 
