@@ -8,7 +8,7 @@ const APIKEY = process.env.OPENWEATHERMAPAPIKEY
 
 module.exports = robot => {
   //とりあえず止まらない
-  robot.respond(/.*[止まる|とまる]+.*/, res => {
+  robot.hear(/.*止まる|とまる+.*/, res => {
     res.send("止まるんじゃねえそ....")
   })
   //毎日１７時に明日の天気をつぶやく
