@@ -12,6 +12,10 @@
 ```
     % export OPENWEATHERMAPAPIKEY='あなたのOpenWeatherMapのapiキー'
 ```
+- slackにhubotアプリをインストールした後、
+
+- 初回起動時は、依存ライブラリのインストールが必要です。
+`% npm install`
 
 
 ```
